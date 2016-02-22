@@ -15,7 +15,6 @@ class Client:
         # initialization
         self.server_port = server_port
         self.host = host
-
         
         # Set up the socket connection to the server
         self.connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -26,6 +25,11 @@ class Client:
     def run(self):
         # Initiate the connection to the server
         self.connection.connect((self.host, self.server_port))
+
+        while True:
+            user_command = raw_input('Enter command')
+            # parse
+            # send
         
     def disconnect(self):
         # TODO: Handle disconnection
@@ -33,6 +37,15 @@ class Client:
 
     def receive_message(self, message):
         # TODO: Handle incoming message
+        # This is realy a formating function
+        pass
+
+    def print_user_list(self, user_list):
+        # called by message_receiver
+        pass
+
+    def print_help(self, helptext):
+        # Print a helptext received from server
         pass
 
     def send_payload(self, data):
