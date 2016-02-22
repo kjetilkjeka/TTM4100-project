@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import json
 import socket
 from MessageReceiver import MessageReceiver
 from MessageParser import MessageParser
@@ -27,10 +28,17 @@ class Client:
         self.connection.connect((self.host, self.server_port))
 
         while True:
-            user_command = raw_input('Enter command')
-            # parse
-            # send
-        
+            command_text = raw_input('Enter command: ')
+            command_list = command_text.split(" ")
+            request = command_list[0]
+
+            if(len(command_list) >= 2):
+                content = command_list[1]
+            else:
+                content = "None"
+            
+            self.send_message(request, content)
+            
     def disconnect(self):
         # TODO: Handle disconnection
         pass
@@ -48,8 +56,9 @@ class Client:
         # Print a helptext received from server
         pass
 
-    def send_payload(self, data):
-        # TODO: Handle sending of a payload
+    def send_message(self, request, content):
+        payload = json.dumps({'request':request, 'content':content})
+        self.connection.send(payload)
         pass
         
     # More methods may be needed!
