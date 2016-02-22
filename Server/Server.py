@@ -25,8 +25,31 @@ class ClientHandler(SocketServer.BaseRequestHandler):
         print("a new handler was spawned") # temp
         
         # Loop that listens for messages from the client
+
+        # handle login
+
         while True:
             received_string = self.connection.recv(4096)
+
+            # parse
+
+            # do checks
+            # if illegal characters is used
+            
+            
+            if command == 'error':
+                # send message to client
+                pass
+            else if command == 'info':
+                # send informational response to server
+                pass
+            else if command == 'message':
+                # new message from user
+                # broadcast to all clients
+                pass
+            else if command == 'history':
+                # list all messages that is issued
+                pass
             
             # TODO: Add handling of received payload from client
 
