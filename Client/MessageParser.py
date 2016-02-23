@@ -6,6 +6,7 @@ class MessageParser():
         self.possible_responses = {
             'error': self.parse_error,
             'info': self.parse_info,
+            'message': self.parse_message,
 	    # More key:values pairs are needed	
         }
 
@@ -17,6 +18,9 @@ class MessageParser():
         else:
             print("response not valid")# temp Response not valid
 
+    def parse_message(self, payload):
+        return payload['content']
+            
     def parse_error(self, payload):
         print("parse error") # temp
     

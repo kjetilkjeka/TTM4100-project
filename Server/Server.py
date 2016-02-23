@@ -62,7 +62,7 @@ class ClientHandler(SocketServer.BaseRequestHandler):
             if command == 'message':
                 # new message from user
                 # broadcast to all clients
-                message_distributor.new_message(json.dumps({'timestamp':1, 'sender':'me', 'response':'someresponse', 'content':'somecontent'})) # temp loopback
+                message_distributor.new_message(json.dumps({'timestamp':1, 'sender':'me', 'response':'message', 'content':'somecontent'})) # temp loopback
             elif command == 'error':
                 # send message to client
                 pass
