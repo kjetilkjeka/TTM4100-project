@@ -19,13 +19,16 @@ class Client:
         
         # Set up the socket connection to the server
         self.connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        # Initiate the connection to the server
+        self.connection.connect((self.host, self.server_port))
+
+        # Start the message receiver
+        self.message_receiver = MessageReceiver(self, self.connection)
         
         # TODO: Finish init process with necessary code
         self.run()
 
     def run(self):
-        # Initiate the connection to the server
-        self.connection.connect((self.host, self.server_port))
 
         while True:
             command_text = raw_input('Enter command: ')
@@ -46,7 +49,7 @@ class Client:
     def receive_message(self, message):
         # TODO: Handle incoming message
         # This is realy a formating function
-        pass
+        print(message)
 
     def print_user_list(self, user_list):
         # called by message_receiver
