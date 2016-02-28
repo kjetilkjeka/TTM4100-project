@@ -10,8 +10,10 @@ start() ->
 client_handler() ->
     receive
 	{tcp, S, DataBinary} ->
-	    DataJson = jsx:decode(DataBinary),
-	    io:format(standard_io, "Received is ~w~n", [DataJson])
+	    DataJson = jsx:decode(DataBinary, [{labels, atom}, return_maps]),
+	    Request = binary_to_list(maps:get(request, DataJson)),
+	    Content = binary_to_list(maps:get(content, DataJson)),
+	    io:format(standard_io, "Received packet ~w, with Request: ~s, and content: ~s~n", [DataJson, Request, Content])
     end,
     client_handler().
 
