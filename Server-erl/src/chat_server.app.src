@@ -1,0 +1,13 @@
+{application, chat_server,
+ [
+  {description, ""},
+  {vsn, "1"},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib,
+		  jsx
+                 ]},
+  {mod, { chat_server, []}},
+  {env, []}
+ ]}.
