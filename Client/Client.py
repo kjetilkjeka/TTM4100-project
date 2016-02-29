@@ -17,7 +17,7 @@ class Client:
         self.server_port = server_port
         self.host = host
 
-        self.terminal_lines = []
+        self.chat_history = []
         
         # Set up the socket connection to the server
         self.connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -48,14 +48,22 @@ class Client:
         # TODO: Handle disconnection
         pass
 
+    def set_history(self, history):
+        self.chat_history = history
+        self.redraw_chat()
+    
     def receive_message(self, message):
         # TODO: Handle incoming message
         # This is realy a formating function
-        self.terminal_lines.append(message)
+        self.chat_history.append(message)
+        self.redraw_chat()
+
+    def redraw_chat(self):
         for i in range(0,30):
             print('')
-        for line in self.terminal_lines:
+        for line in self.chat_history:
             print(line)
+                
         print('Enter command: ')
 
     def print_user_list(self, user_list):

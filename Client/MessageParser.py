@@ -7,6 +7,7 @@ class MessageParser():
             'error': self.parse_error,
             'info': self.parse_info,
             'message': self.parse_message,
+            'history': self.parse_history,
 	    # More key:values pairs are needed	
         }
 
@@ -20,7 +21,14 @@ class MessageParser():
 
     def parse_message(self, payload):
         return payload['content']
-            
+
+    def parse_history(self, payload):
+        message_list = payload['content']
+        message_string = ''
+        for message in message_list:
+            message_string = message_string + '\n' +  message['content']
+        return message_string
+    
     def parse_error(self, payload):
         print("parse error") # temp
     
