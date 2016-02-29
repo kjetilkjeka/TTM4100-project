@@ -20,13 +20,13 @@ class MessageParser():
             print("response not valid")# temp Response not valid
 
     def parse_message(self, payload):
-        return payload['content']
+        return str(payload['timestamp']) + '\t' + payload['sender'] + '\t' + payload['content']
 
     def parse_history(self, payload):
         message_list = payload['content']
         message_string = ''
         for message in message_list:
-            message_string = message_string + '\n' +  message['content']
+            message_string = message_string + '\n' +  self.parse_message(message)
         return message_string
     
     def parse_error(self, payload):
