@@ -47,14 +47,7 @@ loop(State) ->
 
 handle_history(History, State) ->
     Socket = State#client_handler_state.socket,
-    
-    % format message first
-    Message = jsx:encode([
-			  {<<"timestamp">>, <<1>>},
-			  {<<"sender">>,<<"username">>},
-			  {<<"response">>,<<"history">>},
-			  {<<"content">>,History}
-			 ]),
+    Message = parser:encode_data(history, 1, "SomeSender", History),
     gen_tcp:send(Socket, Message),
     {ok, State}.
     
@@ -66,30 +59,23 @@ handle_message(Message, State) ->
     {ok, State}.
    
 
-handle_tcp(Socket, DataBinary, State) ->
-    DataJson = jsx:decode(DataBinary, [{labels, atom}, return_maps]),
-    Request = binary_to_list(maps:get(request, DataJson)),
-    Content = binary_to_list(maps:get(content, DataJson)),
-    io:format(standard_io, "Received packet ~w, with Request: ~s, and content: ~s~n", [DataJson, Request, Content]),
+handle_tcp(Socket, BinaryData, State) ->
+    {ok, {Request, Content}} = parser:decode_data(BinaryData),
+    io:format(standard_io, "Received packet ~w, with Request: ~s, and content: ~s~n", [BinaryData, Request, Content]),
     case Request of % mind that only lowercase is allowed
-	"login" ->
+	login ->
 	    Username = Content,
 	    event_new_login(State, Username),
 	    ok; %temp
-	"logout" ->
+	logout ->
 	    ok; %temp
-	"msg" ->
-	    Message = jsx:encode([
-				  {<<"timestamp">>, <<1>>},
-				  {<<"sender">>,<<"Username">>},
-				  {<<"response">>,<<"Message">>},
-				  {<<"content">>,list_to_binary(Content)}
-				 ]),
+	msg ->
+	    Message = parser:encode_data(message, 1, "Username", Content),
 	    event_new_message(State, Message),
 	    ok; %temp
-	"names" ->
+	names ->
 	    ok;
-	"help" ->
+	help ->
 	    ok
     end,
     {ok, State}.
