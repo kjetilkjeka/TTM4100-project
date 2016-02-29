@@ -35,6 +35,7 @@ handle_event({new_message, Message}, State) ->
 handle_event({new_login, Username, ClientHandler}, State) ->
     MessageServer = State#event_manager_state.message_server,
     MessageHistory = message_server:get_messages(MessageServer),
+    client_handler:login(ClientHandler, Username), % only do this if login succseeds
     client_handler:print_history(ClientHandler, MessageHistory),
     {ok, State};
 
