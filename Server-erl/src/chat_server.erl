@@ -17,7 +17,7 @@ start() ->
     
 
 start(_StartType, _StartArgs) ->
-    Pid = server:start(),
+    {ok, Pid} = server:start(),
     {ok, Pid}.
     %chat-server_sup:start_link().
 
