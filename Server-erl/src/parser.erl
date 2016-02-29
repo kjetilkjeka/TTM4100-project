@@ -12,14 +12,14 @@ encode_data(history, Timestamp, Sender, History) ->
     ListOfBinaries = lists:map(fun(String) -> jsx:decode(String) end, ListOfLists),
     Content = ListOfBinaries,
     Message = jsx:encode([
-			  {<<"timestamp">>, <<Timestamp>>},
+			  {<<"timestamp">>, Timestamp},
 			  {<<"sender">>,list_to_binary(Sender)},
 			  {<<"response">>,<<"history">>},
 			  {<<"content">>,ListOfBinaries}
 			 ]);
 encode_data(Response, Timestamp, Sender, Content) ->
     Message = jsx:encode([
-			  {<<"timestamp">>, <<Timestamp>>},
+			  {<<"timestamp">>, Timestamp},
 			  {<<"sender">>,list_to_binary(Sender)},
 			  {<<"response">>,atom_to_binary(Response, utf8)},
 			  {<<"content">>,list_to_binary(Content)}
