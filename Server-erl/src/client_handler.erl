@@ -1,5 +1,5 @@
 -module(client_handler).
--export([start/1, subscribe/1, new_message_from_server/2]).
+-export([start/1, subscribe/1, new_message_from_server/2, print_history/2]).
 -behaviour(event_producer).
 -record(client_handler_state, {socket, event_subscribers=[] }).
 			       
@@ -13,14 +13,21 @@ start(Socket) ->
 subscribe(Pid) ->
     Pid ! {subscribe, self()}.
 
-new_message_from_server(Pid, Message) -> % fix name
+new_message_from_server(Pid, Message) -> % fix name (call it print message)
     Pid ! {new_message, Message}.
+
+print_history(Pid, History) ->
+    Pid ! {print_history, History}.
 
 %% required implemented as callbacks in subscribed module (callback interface)
 event_new_message(State, Message) -> % fix name
     Subscribers = State#client_handler_state.event_subscribers,
     event_producer:event(Subscribers, {new_message, Message}).
 
+event_new_login(State, Username) ->
+    Subscribers = State#client_handler_state.event_subscribers,
+    event_producer:event(Subscribers, {new_login, Username, self()}).
+    
 			
 
 %% Process functions
@@ -32,9 +39,25 @@ loop(State) ->
 	    {ok, NewState} = handle_message(Message, State);
 	{subscribe, NewSubscriber} ->
 	    OldSubscribers = State#client_handler_state.event_subscribers,
-	    {ok, NewState} = {ok, State#client_handler_state{event_subscribers=[NewSubscriber|OldSubscribers]}}
+	    {ok, NewState} = {ok, State#client_handler_state{event_subscribers=[NewSubscriber|OldSubscribers]}};
+	{print_history, History} ->
+	    {ok, NewState} = handle_history(History, State)
     end,
     loop(NewState).
+
+handle_history(History, State) ->
+    Socket = State#client_handler_state.socket,
+    
+    % format message first
+    Message = jsx:encode([
+			  {<<"timestamp">>, <<1>>},
+			  {<<"sender">>,<<"username">>},
+			  {<<"response">>,<<"history">>},
+			  {<<"content">>,History}
+			 ]),
+    gen_tcp:send(Socket, Message),
+    {ok, State}.
+    
 
 handle_message(Message, State) ->
     Socket = State#client_handler_state.socket,
@@ -50,6 +73,8 @@ handle_tcp(Socket, DataBinary, State) ->
     io:format(standard_io, "Received packet ~w, with Request: ~s, and content: ~s~n", [DataJson, Request, Content]),
     case Request of % mind that only lowercase is allowed
 	"login" ->
+	    Username = Content,
+	    event_new_login(State, Username),
 	    ok; %temp
 	"logout" ->
 	    ok; %temp
