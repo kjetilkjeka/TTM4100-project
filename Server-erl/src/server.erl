@@ -30,6 +30,11 @@ loop(State) ->
     io:format(standard_io, "New State is ~w~n", [NewState]),
     loop(NewState).
 
+handle_event({logout, ClientHandler}, State) ->
+    NameServer = State#event_manager_state.name_server,
+    name_server:remove_client(NameServer, ClientHandler),
+    {ok, State};
+
 handle_event({request_usernames, ClientHandler}, State) ->
     NameServer = State#event_manager_state.name_server,
     NameList = name_server:get_names(NameServer),

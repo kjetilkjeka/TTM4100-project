@@ -45,7 +45,11 @@ event_new_login(State, Username) ->
 event_request_usernames(State) ->    
     Subscribers = State#client_handler_state.event_subscribers,
     event_producer:event(Subscribers, {request_usernames, self()}).
-			
+
+event_logout(State) ->			
+    Subscribers = State#client_handler_state.event_subscribers,
+    event_producer:event(Subscribers, {logout, self()}).
+    
 
 %% Process functions
 loop(State) ->
@@ -107,6 +111,7 @@ handle_tcp(Socket, BinaryData, State) ->
 	    event_new_login(State, Username),
 	    ok; %temp
 	logout ->
+	    event_logout(State),
 	    Message = parser:encode_data(info, "Server", "Succesfully logged out"),
 	    gen_tcp:send(State#client_handler_state.socket, Message),
 	    terminate(State); %temp
