@@ -1,5 +1,5 @@
 -module(client_handler).
--export([start/1, subscribe/1, new_message_from_server/2, print_history/2, login/2]).
+-export([start/1, subscribe/1, new_message_from_server/2, print_history/2, login/2, print_users/2]).
 -behaviour(event_producer).
 -record(client_handler_state, {socket,
 			       event_subscribers=[],
@@ -27,6 +27,10 @@ print_history(Pid, History) -> % change name to login
 
 login(Pid, Username) ->
     Pid ! {login, Username}.
+
+print_users(Pid, UserList) ->
+    Pid ! {print_users, UserList}.
+				  
     
 
 %% required implemented as callbacks in subscribed module (callback interface)
@@ -37,7 +41,10 @@ event_new_message(State, Message) -> % fix name
 event_new_login(State, Username) ->
     Subscribers = State#client_handler_state.event_subscribers,
     event_producer:event(Subscribers, {new_login, Username, self()}).
-    
+
+event_request_usernames(State) ->    
+    Subscribers = State#client_handler_state.event_subscribers,
+    event_producer:event(Subscribers, {request_usernames, self()}).
 			
 
 %% Process functions
@@ -53,9 +60,23 @@ loop(State) ->
 	{print_history, History} ->
 	    {ok, NewState} = handle_history(History, State);
 	{login, Username} ->
-	    {ok, NewState} = handle_login(Username, State)
+	    {ok, NewState} = handle_login(Username, State);
+	{print_users, UserList} ->
+	    {ok, NewState} = handle_userlist(UserList, State)
     end,
     loop(NewState).
+
+handle_userlist(UserList, State) ->
+    Socket = State#client_handler_state.socket,
+    StartText = "Online users are:",
+    UserListContent = lists:foldl(fun(User, AccString) ->
+					  AccString ++ "\n" ++ User end,
+				  StartText,
+				  UserList),
+    Message = parser:encode_data(info, "Server", UserListContent),
+    gen_tcp:send(Socket, Message),
+    {ok, State}.
+	    
 
 handle_login(Username, State) ->
     NewState = State#client_handler_state{username = Username,
@@ -65,7 +86,7 @@ handle_login(Username, State) ->
 
 handle_history(History, State) ->
     Socket = State#client_handler_state.socket,
-    Message = parser:encode_data(history, "SomeSender", History),
+    Message = parser:encode_data(history, "Server", History),
     gen_tcp:send(Socket, Message),
     {ok, State}.
     
@@ -98,7 +119,7 @@ handle_tcp(Socket, BinaryData, State) ->
 	    Message = parser:encode_data(error, "Server", "Not logged in"),
 	    gen_tcp:send(State#client_handler_state.socket, Message);
 	names ->
-	    ok;
+	    event_request_usernames(State);
 	help ->
 	    StartText = "Available user commands is",
 	    HelpText = lists:foldl(fun(Command, AccString) ->

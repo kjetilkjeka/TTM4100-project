@@ -3,14 +3,19 @@
 % make this a event_consumer/event_manager
 
 -record(event_manager_state, {message_server,
-			       client_handlers = [] }).
+			      name_server,
+			      client_handlers = [] }).
 
 %% callable functions
 start() ->
     Host = "localhost",
     Port = 9998,
     {ok, MessageServer} = message_server:start(),
-    EventManager = spawn(fun() -> loop(#event_manager_state{message_server=MessageServer}) end),
+    {ok, NameServer} = name_server:start(),
+    EventManagerInitialState = #event_manager_state{
+			   message_server=MessageServer,
+			   name_server=NameServer},
+    EventManager = spawn(fun() -> loop(EventManagerInitialState) end),
     {ok, ThreadedTcpServer} = threaded_tcp_server:start(EventManager, Port, Host),
     {ok, EventManager}.
 
@@ -25,6 +30,12 @@ loop(State) ->
     io:format(standard_io, "New State is ~w~n", [NewState]),
     loop(NewState).
 
+handle_event({request_usernames, ClientHandler}, State) ->
+    NameServer = State#event_manager_state.name_server,
+    NameList = name_server:get_names(NameServer),
+    client_handler:print_users(ClientHandler, NameList),
+    {ok, State};
+
 handle_event({new_message, Message}, State) ->
     MessageServer = State#event_manager_state.message_server,
     ClientHandlers = State#event_manager_state.client_handlers,
@@ -33,8 +44,10 @@ handle_event({new_message, Message}, State) ->
     {ok, State};
 
 handle_event({new_login, Username, ClientHandler}, State) ->
+    NameServer = State#event_manager_state.name_server,
     MessageServer = State#event_manager_state.message_server,
     MessageHistory = message_server:get_messages(MessageServer),
+    name_server:new_name(NameServer, ClientHandler, Username),
     client_handler:login(ClientHandler, Username), % only do this if login succseeds
     client_handler:print_history(ClientHandler, MessageHistory),
     {ok, State};
