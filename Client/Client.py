@@ -17,7 +17,7 @@ class Client:
         self.server_port = server_port
         self.host = host
 
-        self.chat_history = []
+        self.screen_buffer = []
         
         # Set up the socket connection to the server
         self.connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -49,19 +49,23 @@ class Client:
         pass
 
     def set_history(self, history):
-        self.chat_history = history
+        self.screen_buffer = history
         self.redraw_chat()
     
     def receive_message(self, message):
         # TODO: Handle incoming message
         # This is realy a formating function
-        self.chat_history.append(message)
+        self.screen_buffer.append(message)
         self.redraw_chat()
 
+    def print_info(self, info):
+        self.screen_buffer.append(info)
+        self.redraw_chat()
+        
     def redraw_chat(self):
         for i in range(0,30):
             print('')
-        for line in self.chat_history:
+        for line in self.screen_buffer:
             print(line)
                 
         print('Enter command: ')

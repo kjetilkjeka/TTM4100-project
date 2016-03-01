@@ -6,7 +6,9 @@
 			       logged_in = false,
 			       username = []
 			      }).
-			       
+		       
+-define(ALLOWED_COMMANDS, [login, logout, msg, names, help]).
+
 
 %% callable function (interface)
 start(Socket) ->
@@ -96,6 +98,33 @@ handle_tcp(Socket, BinaryData, State) ->
 	names ->
 	    ok;
 	help ->
-	    ok
+	    StartText = "Available user commands is",
+	    HelpText = lists:foldl(fun(Command, AccString) ->
+					   AccString ++ "\n" ++ command_info(Command) end,
+				   StartText,
+				   ?ALLOWED_COMMANDS),
+	    Message = parser:encode_data(info, 1, "Server", HelpText),
+	    gen_tcp:send(State#client_handler_state.socket, Message)
     end,
     {ok, State}.
+
+
+
+
+
+%% all the command stuff
+
+command_info(login) ->
+    "login <username> sends a request to login to the server. The content is a string with the username.";
+command_info(logout) ->
+    "logout sends a request to log out and disconnect from the server. The content is None.";
+command_info(msg) ->
+    "msg <message> sends a message to the server that should be broadcasted to all connected clients. The content is a string with the message.";
+command_info(names) ->
+    "names should send a request to list all the usernames currently connected to the server.";
+command_info(help) ->
+    "help sends a request to the server to receive a help text containing all requests supported by the server.";
+command_info(Command) when is_atom(Command) ->
+    atom_to_list(Command) ++ " no info given".
+
+

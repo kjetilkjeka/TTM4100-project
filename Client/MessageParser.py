@@ -33,6 +33,6 @@ class MessageParser():
         print("parse error") # temp
     
     def parse_info(self, payload):
-        print("parese info") # temp
+        return payload['content']
         
     # Include more methods for handling the different responses... 
