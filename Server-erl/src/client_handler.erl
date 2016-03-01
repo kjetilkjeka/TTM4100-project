@@ -65,7 +65,7 @@ handle_login(Username, State) ->
 
 handle_history(History, State) ->
     Socket = State#client_handler_state.socket,
-    Message = parser:encode_data(history, 1, "SomeSender", History),
+    Message = parser:encode_data(history, "SomeSender", History),
     gen_tcp:send(Socket, Message),
     {ok, State}.
     
@@ -86,16 +86,16 @@ handle_tcp(Socket, BinaryData, State) ->
 	    event_new_login(State, Username),
 	    ok; %temp
 	logout ->
-	    Message = parser:encode_data(info, 1, "Server", "Succesfully logged out"),
+	    Message = parser:encode_data(info, "Server", "Succesfully logged out"),
 	    gen_tcp:send(State#client_handler_state.socket, Message),
 	    terminate(State); %temp
 	msg when State#client_handler_state.logged_in ->
 	    Username = State#client_handler_state.username,
-	    Message = parser:encode_data(message, 1, Username, Content),
+	    Message = parser:encode_data(message, Username, Content),
 	    event_new_message(State, Message),
 	    ok; %temp
 	msg when not State#client_handler_state.logged_in ->
-	    Message = parser:encode_data(error, 1, "", "Not logged in"),
+	    Message = parser:encode_data(error, "Server", "Not logged in"),
 	    gen_tcp:send(State#client_handler_state.socket, Message);
 	names ->
 	    ok;
@@ -105,7 +105,7 @@ handle_tcp(Socket, BinaryData, State) ->
 					   AccString ++ "\n" ++ command_info(Command) end,
 				   StartText,
 				   ?ALLOWED_COMMANDS),
-	    Message = parser:encode_data(info, 1, "Server", HelpText),
+	    Message = parser:encode_data(info, "Server", HelpText),
 	    gen_tcp:send(State#client_handler_state.socket, Message)
     end,
     {ok, State}.
