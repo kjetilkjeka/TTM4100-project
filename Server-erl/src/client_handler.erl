@@ -86,7 +86,9 @@ handle_tcp(Socket, BinaryData, State) ->
 	    event_new_login(State, Username),
 	    ok; %temp
 	logout ->
-	    ok; %temp
+	    Message = parser:encode_data(info, 1, "Server", "Succesfully logged out"),
+	    gen_tcp:send(State#client_handler_state.socket, Message),
+	    terminate(State); %temp
 	msg when State#client_handler_state.logged_in ->
 	    Username = State#client_handler_state.username,
 	    Message = parser:encode_data(message, 1, Username, Content),
@@ -108,6 +110,11 @@ handle_tcp(Socket, BinaryData, State) ->
     end,
     {ok, State}.
 
+terminate(State) ->
+    Socket = State#client_handler_state.socket,
+    gen_tcp:close(Socket),
+    exit(normal).
+    
 
 
 

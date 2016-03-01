@@ -29,6 +29,8 @@ class MessageReceiver(Thread):
         # TODO: Make MessageReceiver receive and handle payloads
         while True:
             message_raw = self.connection.recv(4096) # bit to hardcoded?
+            if not message_raw:
+                self.client.disconnect()
             print("MessageReceiver received command") # temp
             message_parser = MessageParser()
             response = message_parser.parse(message_raw)

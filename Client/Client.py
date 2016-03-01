@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import json
 import socket
+import os
 from MessageReceiver import MessageReceiver
 from MessageParser import MessageParser
 
@@ -45,6 +46,8 @@ class Client:
             self.send_message(request, content)
             
     def disconnect(self):
+        print "Program will exit"
+        os._exit(1) # soemwhat bad hack
         # TODO: Handle disconnection
         pass
 
