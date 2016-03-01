@@ -30,7 +30,7 @@ class MessageParser():
         return message_string
     
     def parse_error(self, payload):
-        print("parse error") # temp
+        return 'Error: ' + payload['content']
     
     def parse_info(self, payload):
         return payload['content']

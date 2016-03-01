@@ -34,6 +34,6 @@ class MessageReceiver(Thread):
             print("MessageReceiver received command") # temp
             message_parser = MessageParser()
             response = message_parser.parse(message_raw)
-            self.client.receive_message(response)
+            self.client.print_line(response)
         
             

@@ -51,18 +51,10 @@ class Client:
         # TODO: Handle disconnection
         pass
 
-    def set_history(self, history):
-        self.screen_buffer = history
-        self.redraw_chat()
-    
-    def receive_message(self, message):
+    def print_line(self, line):
         # TODO: Handle incoming message
         # This is realy a formating function
-        self.screen_buffer.append(message)
-        self.redraw_chat()
-
-    def print_info(self, info):
-        self.screen_buffer.append(info)
+        self.screen_buffer.append(line)
         self.redraw_chat()
         
     def redraw_chat(self):
@@ -72,14 +64,6 @@ class Client:
             print(line)
                 
         print('Enter command: ')
-
-    def print_user_list(self, user_list):
-        # called by message_receiver
-        pass
-
-    def print_help(self, helptext):
-        # Print a helptext received from server
-        pass
 
     def send_message(self, request, content):
         payload = json.dumps({'request':request, 'content':content})
