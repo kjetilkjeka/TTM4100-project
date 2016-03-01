@@ -35,7 +35,7 @@ class Client:
 
         while True:
             command_text = raw_input('Enter command:\n')
-            command_list = command_text.split(" ")
+            command_list = command_text.split(" ", 1)
             request = command_list[0]
 
             if(len(command_list) >= 2):
