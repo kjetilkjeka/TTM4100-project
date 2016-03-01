@@ -20,7 +20,7 @@ init([]) ->
     {ok, []}.
 
 handle_cast({new_message, Message}, MessageHistory) ->
-    {noreply, [Message|MessageHistory]}.
+    {noreply, MessageHistory ++ [Message]}.
 
 handle_call(get_messages, _From, MessageHistory) ->
     {reply, MessageHistory, MessageHistory}.
