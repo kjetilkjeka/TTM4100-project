@@ -4,7 +4,14 @@
 decode_data(BinaryData) ->
     DataJson = jsx:decode(BinaryData, [{labels, atom}, return_maps]),
     Request = binary_to_atom(maps:get(request, DataJson), utf8), % fix, make safe
-    Content = binary_to_list(maps:get(content, DataJson)),
+    ContentRaw = maps:get(content, DataJson),
+    Content = case ContentRaw of
+		  null ->
+		      "null";
+		  _ ->
+		      binary_to_list(ContentRaw)
+	      end,
+    %Content = binary_to_list(maps:get(content, DataJson)),
     {ok, {Request, Content}}.
 
 make_timestamp() ->
@@ -19,13 +26,13 @@ make_timestamp() ->
 
 encode_data(history, Sender, History) ->
     ListOfLists = History,
-    ListOfBinaries = lists:map(fun(String) -> jsx:decode(String) end, ListOfLists),
-    Content = ListOfBinaries,
+    %ListOfBinaries = lists:map(fun(String) -> jsx:decode(String) end, ListOfLists),
+    %Content = ListOfBinaries,
     Message = jsx:encode([
 			  {<<"timestamp">>, make_timestamp()},
 			  {<<"sender">>,list_to_binary(Sender)},
 			  {<<"response">>,<<"history">>},
-			  {<<"content">>,ListOfBinaries}
+			  {<<"content">>,History}
 			 ]);
 encode_data(Response, Sender, Content) ->
     Message = jsx:encode([

@@ -26,9 +26,9 @@ class MessageParser():
         message_list = payload['content']
         message_string = ''
         for message in message_list:
-            message_string = message_string + '\n' +  self.parse_message(message)
+            message_string = message_string + '\n' +  self.parse_message(json.loads(message))
         return message_string
-    
+        
     def parse_error(self, payload):
         return 'Error: ' + payload['content']
     

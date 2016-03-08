@@ -80,4 +80,4 @@ if __name__ == '__main__':
 
     No alterations are necessary
     """
-    client = Client('10.20.67.31', 30000)
+    client = Client('78.91.3.67', 9998)
