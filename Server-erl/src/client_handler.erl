@@ -83,9 +83,12 @@ handle_userlist(UserList, State) ->
 	    
 
 handle_login(Username, State) ->
+    Socket = State#client_handler_state.socket,
     NewState = State#client_handler_state{username = Username,
 					  logged_in = true
 					 },
+    Message = parser:encode_data(info, "Server", "Logged in"),
+    gen_tcp:send(Socket, Message),
     {ok, NewState}.
 
 handle_history(History, State) ->

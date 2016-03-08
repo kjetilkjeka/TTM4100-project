@@ -8,8 +8,8 @@
 
 %% callable functions
 start() ->
-    Host = "localhost",
-    Port = 9998,
+    Host = {10,20,67,31},
+    Port = 30000,
     {ok, MessageServer} = message_server:start(),
     {ok, NameServer} = name_server:start(),
     EventManagerInitialState = #event_manager_state{
